@@ -1,0 +1,92 @@
+---
+name: Terraform CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.8
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: yamllint
+        run: yamllint .
+        continue-on-error: true
+
+      - name: markdownlint-cli2
+        uses: DavidAnson/markdownlint-cli2-action@v16
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+        continue-on-error: true
+
+      - uses: terraform-linters/setup-tflint@v4
+        name: Setup TFLint
+        with:
+          tflint_version: v0.50.3
+
+      - name: Init TFLint
+        run: tflint --init
+        env:
+          # uses the Token to avoid github rate limiting
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: tflint
+        run: tflint -f compact
+        continue-on-error: true
+
+      - name: terraform-docs
+        uses: terraform-docs/gh-actions@v1
+        with:
+          find-dir: .
+          fail-on-diff: "true"
+        continue-on-error: true
+
+  security:
+    runs-on: ubuntu-latest
+    name: checkov
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Checkov GitHub Action
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          output_format: cli,sarif
+          output_file_path: console,results.sarif
+        continue-on-error: true
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif

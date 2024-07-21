@@ -1,0 +1,14 @@
+{
+  "name": "Terraform Dev Container",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "TERRAFORM_VERSION": "latest"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["HashiCorp.terraform"]
+    }
+  }
+}
