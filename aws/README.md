@@ -1,8 +1,9 @@
-# `example` module
+# `aws` module
 
 ---
 
-This Terraform module provides an example that can pass tests.
+This Terraform module provides some basic AWS configuration for my homelab
+support services.
 
 <!-- BEGIN_TF_DOCS -->
 

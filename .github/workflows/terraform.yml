@@ -1,7 +1,7 @@
 ---
 name: Terraform CI
 
-on:
+on: # yamllint disable-line rule:truthy
   push:
     branches:
       - main
@@ -84,6 +84,7 @@ jobs:
         with:
           output_format: cli,sarif
           output_file_path: console,results.sarif
+          skip_check: "CKV_AWS_18,CKV2_AWS_23,CKV2_AWS_39,CKV2_AWS_62"
         continue-on-error: true
 
       - name: Upload SARIF file

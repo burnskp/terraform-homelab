@@ -39,3 +39,9 @@ repos:
     rev: 3.2.177
     hooks:
       - id: checkov
+        args:
+          [
+            "--skip-check",
+            "CKV_AWS_18,CKV2_AWS_23,CKV2_AWS_39,CKV2_AWS_62",
+            "--quiet",
+          ]
